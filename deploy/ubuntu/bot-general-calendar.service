@@ -1,0 +1,23 @@
+[Unit]
+Description=BotGeneralCalendar Telegram bot (CalDAV)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=@@SERVICE_USER@@
+Group=@@SERVICE_USER@@
+WorkingDirectory=@@INSTALL_DIR@@
+Environment=PYTHONUNBUFFERED=1
+# optional .env; leading "-" = file may be missing
+EnvironmentFile=-@@INSTALL_DIR@@/.env
+# avoid broken proxy env breaking Telegram/httpx (same as local runs)
+Environment=HTTP_PROXY=
+Environment=HTTPS_PROXY=
+Environment=ALL_PROXY=
+ExecStart=@@INSTALL_DIR@@/venv/bin/python @@INSTALL_DIR@@/bot.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
