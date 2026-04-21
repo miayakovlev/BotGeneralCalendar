@@ -35,30 +35,57 @@ rsync -avz --exclude '.git' --exclude 'venv' --exclude '__pycache__' \
 
 ---
 
-## 2. Файл секретов `.env`
+## 2. Файл секретов `.env` (самый важный шаг)
 
-Скрипт установки копирует код в **`/opt/bot-general-calendar`** и **не** подтягивает `.env` из репозитория (секреты только на сервере).
+Что должно получиться в итоге:
 
-Скопируй локальный `.env` или создай файл на сервере по шаблону `.env.example`.
+- Файл существует по пути **`/opt/bot-general-calendar/.env`**.
+- Внутри все нужные переменные (Telegram token, iCloud и т.д.).
+- Права файла: владелец `botgencal`, доступ `600`.
 
-**Пример** (после первого успешного `install.sh` пользователь `botgencal` уже существует):
+Почему так: `install.sh` копирует код, но **не переносит секреты** из репозитория.  
+Поэтому `.env` кладем отдельно, вручную.
+
+### Вариант A (рекомендуется): перенести готовый локальный `.env`
+
+На локальной машине (из каталога, где есть `BotGeneralCalendar/.env`):
+
+```bash
+scp BotGeneralCalendar/.env user@SERVER:/tmp/bgc.env
+```
+
+На сервере:
 
 ```bash
 sudo mkdir -p /opt/bot-general-calendar
-scp BotGeneralCalendar/.env user@SERVER:/tmp/bgc.env
-ssh user@SERVER "sudo mv /tmp/bgc.env /opt/bot-general-calendar/.env && \
-  sudo chown botgencal:botgencal /opt/bot-general-calendar/.env && \
-  sudo chmod 600 /opt/bot-general-calendar/.env"
-```
-
-Если `.env` положили **до** первого запуска `install.sh`, после установки выполни:
-
-```bash
+sudo mv /tmp/bgc.env /opt/bot-general-calendar/.env
 sudo chown botgencal:botgencal /opt/bot-general-calendar/.env
 sudo chmod 600 /opt/bot-general-calendar/.env
 ```
 
-Файл должен быть **читаем пользователем сервиса** `botgencal` (бот читает `.env` из Python).
+### Вариант B: создать `.env` прямо на сервере
+
+```bash
+sudo mkdir -p /opt/bot-general-calendar
+sudo cp /opt/bot-general-calendar/.env.example /opt/bot-general-calendar/.env 2>/dev/null || true
+sudo nano /opt/bot-general-calendar/.env
+sudo chown botgencal:botgencal /opt/bot-general-calendar/.env
+sudo chmod 600 /opt/bot-general-calendar/.env
+```
+
+Если шаблона `.env.example` в `/opt/...` нет, просто создай файл вручную в `nano` и вставь переменные.
+
+### Быстрая проверка
+
+```bash
+ls -l /opt/bot-general-calendar/.env
+```
+
+Ожидаемо что-то вроде:
+
+```text
+-rw------- 1 botgencal botgencal ... /opt/bot-general-calendar/.env
+```
 
 ---
 
