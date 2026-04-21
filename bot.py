@@ -14,7 +14,8 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 
 ENV_PATH = Path(__file__).resolve().parent / ".env"
-load_dotenv(dotenv_path=ENV_PATH)
+# override=True: значения из .env перекрывают устаревшие переменные окружения (например старый токен).
+load_dotenv(dotenv_path=ENV_PATH, override=True)
 
 
 logging.basicConfig(
@@ -255,7 +256,7 @@ async def add_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     )
 
 def main() -> None:
-    load_dotenv(dotenv_path=ENV_PATH)
+    load_dotenv(dotenv_path=ENV_PATH, override=True)
     token = get_required_env("TELEGRAM_BOT_TOKEN")
 
     application = Application.builder().token(token).build()
